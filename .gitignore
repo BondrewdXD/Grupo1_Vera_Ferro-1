@@ -1,5 +1,7 @@
 .env
 
+.streamlit/secrets.toml
+
 # Entorno virtual
 venv/
 *.pyc
