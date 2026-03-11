@@ -1,0 +1,6 @@
+ciudad,pais,latitud,longitud,temperatura,sensacion_termica,humedad,presion,velocidad_viento,descripcion,fecha_extraccion
+Orion,US,41.2831,-90.4297,3.94,-1.89,74,1020,10.29,nubes,2026-03-11T17:37:59.362375
+Gothenburg,US,41.0556,-100.2855,7.74,3.81,27,1027,7.74,muy nuboso,2026-03-11T17:38:02.235738
+Royal City,US,46.9633,-119.6832,6.66,2.53,67,1016,7.34,nubes,2026-03-11T17:38:05.177460
+Lake Andes,US,42.9922,-98.5292,6.42,2.44,33,1024,6.71,muy nuboso,2026-03-11T17:38:06.679066
+Fort Morgan,US,40.6049,-103.8426,9.08,5.15,21,1024,9.32,cielo claro,2026-03-11T17:38:09.616366

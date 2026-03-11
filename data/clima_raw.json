@@ -1,0 +1,67 @@
+[
+  {
+    "ciudad": "Orion",
+    "pais": "US",
+    "latitud": 41.2831,
+    "longitud": -90.4297,
+    "temperatura": 3.94,
+    "sensacion_termica": -1.89,
+    "humedad": 74,
+    "presion": 1020,
+    "velocidad_viento": 10.29,
+    "descripcion": "nubes",
+    "fecha_extraccion": "2026-03-11T17:37:59.362375"
+  },
+  {
+    "ciudad": "Gothenburg",
+    "pais": "US",
+    "latitud": 41.0556,
+    "longitud": -100.2855,
+    "temperatura": 7.74,
+    "sensacion_termica": 3.81,
+    "humedad": 27,
+    "presion": 1027,
+    "velocidad_viento": 7.74,
+    "descripcion": "muy nuboso",
+    "fecha_extraccion": "2026-03-11T17:38:02.235738"
+  },
+  {
+    "ciudad": "Royal City",
+    "pais": "US",
+    "latitud": 46.9633,
+    "longitud": -119.6832,
+    "temperatura": 6.66,
+    "sensacion_termica": 2.53,
+    "humedad": 67,
+    "presion": 1016,
+    "velocidad_viento": 7.34,
+    "descripcion": "nubes",
+    "fecha_extraccion": "2026-03-11T17:38:05.177460"
+  },
+  {
+    "ciudad": "Lake Andes",
+    "pais": "US",
+    "latitud": 42.9922,
+    "longitud": -98.5292,
+    "temperatura": 6.42,
+    "sensacion_termica": 2.44,
+    "humedad": 33,
+    "presion": 1024,
+    "velocidad_viento": 6.71,
+    "descripcion": "muy nuboso",
+    "fecha_extraccion": "2026-03-11T17:38:06.679066"
+  },
+  {
+    "ciudad": "Fort Morgan",
+    "pais": "US",
+    "latitud": 40.6049,
+    "longitud": -103.8426,
+    "temperatura": 9.08,
+    "sensacion_termica": 5.15,
+    "humedad": 21,
+    "presion": 1024,
+    "velocidad_viento": 9.32,
+    "descripcion": "cielo claro",
+    "fecha_extraccion": "2026-03-11T17:38:09.616366"
+  }
+]

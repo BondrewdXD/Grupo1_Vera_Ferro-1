@@ -17,7 +17,6 @@ __pycache__/
 Thumbs.db
 
 # Datos locales
-data/
 logs/
 
 # IDE
