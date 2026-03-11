@@ -3,12 +3,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 from datetime import datetime
-import sys
-
-sys.path.insert(0, '.')
-
-from scripts.database import SessionLocal
-from scripts.models import Clima
+from pathlib import Path
 
 # ==============================
 # CONFIGURACIÓN
@@ -22,46 +17,62 @@ st.set_page_config(
 st.title("🎛️ Dashboard Interactivo - OpenWeather ETL")
 
 # ==============================
-# CONEXIÓN BD
+# CARGAR DATOS DESDE CSV
 # ==============================
-db = SessionLocal()
+CSV_PATH = Path("data/clima.csv")
 
-registros = db.query(Clima).all()
+if not CSV_PATH.exists():
+    st.error("❌ No se encontró el archivo data/clima.csv en el repositorio.")
+    st.stop()
 
-data = []
-for r in registros:
-    data.append({
-        'Ciudad': r.ciudad,
-        'País': r.pais,
-        'Temperatura': r.temperatura,
-        'Sensación': r.sensacion_termica,
-        'Humedad': r.humedad,
-        'Viento': r.velocidad_viento,
-        'Presion': r.presion,
-        'Descripción': r.descripcion,
-        'Fecha': r.fecha_extraccion
-    })
-
-db.close()
-
-df = pd.DataFrame(data)
+df = pd.read_csv(CSV_PATH)
 
 if df.empty:
-    st.warning("⚠️ No hay datos en la base de datos.")
+    st.warning("⚠️ El CSV no contiene datos.")
+    st.stop()
+
+# ==============================
+# NORMALIZAR COLUMNAS (por si cambian acentos)
+# ==============================
+rename_map = {
+    "Pais": "País",
+    "Sensacion": "Sensación",
+    "Sensacion_termica": "Sensación",
+    "Descripcion": "Descripción",
+    "Velocidad_viento": "Viento",
+    "Presion": "Presion",
+    "fecha_extraccion": "Fecha",
+    "ciudad": "Ciudad",
+    "pais": "País",
+    "temperatura": "Temperatura",
+    "humedad": "Humedad",
+    "velocidad_viento": "Viento",
+    "presion": "Presion",
+    "descripcion": "Descripción",
+}
+for k, v in rename_map.items():
+    if k in df.columns and v not in df.columns:
+        df.rename(columns={k: v}, inplace=True)
+
+# Validar columnas mínimas
+required_cols = ["Ciudad", "Temperatura", "Humedad", "Descripción", "Fecha"]
+missing = [c for c in required_cols if c not in df.columns]
+if missing:
+    st.error(f"❌ Faltan columnas en el CSV: {missing}")
     st.stop()
 
 # ==============================
 # LIMPIEZA Y PREPARACIÓN
 # ==============================
-df['Fecha'] = pd.to_datetime(df['Fecha'])
+df['Fecha'] = pd.to_datetime(df['Fecha'], errors='coerce')
+df = df.dropna(subset=['Fecha'])
 
 # ==============================
 # SIDEBAR - FILTROS
 # ==============================
 st.sidebar.markdown("### 🔧 Controles")
 
-# CIUDADES
-ciudades_disponibles = df['Ciudad'].unique()
+ciudades_disponibles = sorted(df['Ciudad'].dropna().unique())
 
 ciudades_seleccionadas = st.sidebar.multiselect(
     "🏙️ Ciudades a Mostrar",
@@ -69,7 +80,6 @@ ciudades_seleccionadas = st.sidebar.multiselect(
     default=ciudades_disponibles
 )
 
-# FECHAS DINÁMICAS SEGÚN BD
 fecha_min = df['Fecha'].min().date()
 fecha_max = df['Fecha'].max().date()
 
@@ -91,7 +101,6 @@ with col2:
         max_value=fecha_max
     )
 
-# RANGO DE TEMPERATURA
 temp_min, temp_max = st.sidebar.slider(
     "🌡️ Rango de Temperatura (°C)",
     min_value=-50,
@@ -113,8 +122,8 @@ df_filtrado = df[
     (df['Temperatura'] <= temp_max)
 ]
 
-st.write("Fecha mínima en BD:", df['Fecha'].min())
-st.write("Fecha máxima en BD:", df['Fecha'].max())
+st.write("Fecha mínima en datos:", df['Fecha'].min())
+st.write("Fecha máxima en datos:", df['Fecha'].max())
 
 # ==============================
 # CONTENIDO PRINCIPAL
@@ -126,24 +135,23 @@ if not df_filtrado.empty:
     col1, col2, col3, col4, col5 = st.columns(5)
 
     with col1:
-        st.metric("🌡️ Temp Max",
-                  f"{df_filtrado['Temperatura'].max():.1f}°C")
+        st.metric("🌡️ Temp Max", f"{df_filtrado['Temperatura'].max():.1f}°C")
 
     with col2:
-        st.metric("🌡️ Temp Min",
-                  f"{df_filtrado['Temperatura'].min():.1f}°C")
+        st.metric("🌡️ Temp Min", f"{df_filtrado['Temperatura'].min():.1f}°C")
 
     with col3:
-        st.metric("🌡️ Temp Prom",
-                  f"{df_filtrado['Temperatura'].mean():.1f}°C")
+        st.metric("🌡️ Temp Prom", f"{df_filtrado['Temperatura'].mean():.1f}°C")
 
     with col4:
-        st.metric("💧 Humedad Prom",
-                  f"{df_filtrado['Humedad'].mean():.1f}%")
+        st.metric("💧 Humedad Prom", f"{df_filtrado['Humedad'].mean():.1f}%")
 
     with col5:
-        st.metric("💨 Viento Max",
-                  f"{df_filtrado['Viento'].max():.1f} m/s")
+        viento_col = 'Viento' if 'Viento' in df_filtrado.columns else None
+        if viento_col:
+            st.metric("💨 Viento Max", f"{df_filtrado[viento_col].max():.1f} m/s")
+        else:
+            st.metric("💨 Viento Max", "N/A")
 
     st.markdown("---")
 
@@ -210,7 +218,7 @@ if not df_filtrado.empty:
         columnas_mostrar = st.multiselect(
             "Columnas a mostrar:",
             df_filtrado.columns.tolist(),
-            default=['Ciudad', 'Temperatura', 'Humedad', 'Descripción', 'Fecha']
+            default=[c for c in ['Ciudad', 'Temperatura', 'Humedad', 'Descripción', 'Fecha'] if c in df_filtrado.columns]
         )
 
     if mostrar_todos:
